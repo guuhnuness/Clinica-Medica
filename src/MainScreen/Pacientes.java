@@ -7,24 +7,27 @@ public class Pacientes {
     private final StringProperty nome;
     private final StringProperty cpf;
     private final StringProperty data_nascimento;
+    private final StringProperty logradouro;
     private final StringProperty telefone;
     private final StringProperty email;
  
 
     // Carregado do BD (com id)
-    public Pacientes(int id, String nome, String cpf, String data_nascimento, String telefone, String email) {
-        this.id = new SimpleIntegerProperty(id);
-        this.nome = new SimpleStringProperty(nome);
-        this.cpf = new SimpleStringProperty(cpf);
-        this.data_nascimento = new SimpleStringProperty(data_nascimento);
-        this.telefone = new SimpleStringProperty(data_nascimento);
-        this.email = new SimpleStringProperty(email);
-    }
+  // Pacientes.java
+public Pacientes(int id, String nome, String cpf, String data, String telefone, String email, String logradouro) {
+    this.id = new SimpleIntegerProperty(id);
+    this.nome = new SimpleStringProperty(nome);
+    this.cpf = new SimpleStringProperty(cpf);
+    this.data_nascimento = new SimpleStringProperty(data);
+    this.telefone = new SimpleStringProperty(telefone);
+    this.email = new SimpleStringProperty(email);
+    this.logradouro = new SimpleStringProperty(logradouro);
+}
 
-    // Para inserir novo (sem id)
-    public Pacientes(String nome, String cpf, String data_nascimento, String telefone, String email) {
-        this(0, nome, cpf, data_nascimento, telefone, email);
-    }
+public Pacientes(String nome, String cpf, String data, String telefone, String email, String logradouro) {
+    this(0, nome, cpf, data, telefone, email, logradouro);
+}
+
 
     public int getId(){ return id.get(); }
     public IntegerProperty idProperty(){ return id; }
@@ -49,6 +52,10 @@ public class Pacientes {
     public String getEmail(){ return email.get(); }
     public StringProperty emailProperty(){ return email; }
     public void setEmail(String email){ this.email.set(email); }
+    
+     public String getLogradouro(){ return logradouro.get(); }
+    public StringProperty logradouroProperty(){ return logradouro; }
+    public void setLogradouro(String logradouro){ this.logradouro.set(logradouro); }
     
     
 }

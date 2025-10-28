@@ -5,27 +5,27 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MedicosDAO {
+public class PacientesDAO {
 
-    public List<Medicos> listarMedicos() {
-        List<Medicos> lista = new ArrayList<>();
-        String sql = "SELECT m.id_medico, m.nome, m.crm, m.id_especialidade, m.data_nascimento, m.telefone " +
-                     "FROM medicos m";
+    public List<Pacientes> listarPacientes() {
+        List<Pacientes> lista = new ArrayList<>();
+        String sql = "SELECT id_paciente, nome, cpf, data_nascimento, telefone, email, logradouro FROM pacientes";
 
         try (Connection con = DatabaseConnection.getConnection();
              Statement st = con.createStatement();
              ResultSet rs = st.executeQuery(sql)) {
 
             while (rs.next()) {
-                Medicos m = new Medicos(
-                    rs.getInt("id_medico"),
+                Pacientes p = new Pacientes(
+                    rs.getInt("id_paciente"),
                     rs.getString("nome"),
-                    rs.getString("crm"),
-                    rs.getInt("id_especialidade"),
-                    rs.getDate("data_nascimento"),
-                    rs.getString("telefone")
+                    rs.getString("cpf"),
+                    rs.getString("data_nascimento"),
+                    rs.getString("telefone"),
+                    rs.getString("email"), 
+                    rs.getString("logradouro")
                 );
-                lista.add(m);
+                lista.add(p);
             }
 
         } catch (SQLException e) {
@@ -34,22 +34,22 @@ public class MedicosDAO {
         return lista;
     }
 
-    public void inserirMedico(Medicos m) {
-        String sql = "INSERT INTO medicos (nome, crm, id_especialidade, data_nascimento, telefone) VALUES (?, ?, ?, ?, ?)";
+    public void inserirPaciente(Pacientes p) {
+        String sql = "INSERT INTO pacientes (nome, cpf, data_nascimento, telefone, email) VALUES (?, ?, ?, ?, ?)";
 
         try (Connection con = DatabaseConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
-            ps.setString(1, m.getNome());
-            ps.setString(2, m.getCrm());
-            ps.setInt(3, m.getIdEspecialidade());
-            ps.setDate(4, m.getData());
-            ps.setString(5, m.getTelefone());
+            ps.setString(1, p.getNome());
+            ps.setString(2, p.getCpf());
+            ps.setString(3, p.getDataNascimento());
+            ps.setString(4, p.getTelefone());
+            ps.setString(5, p.getEmail());
             ps.executeUpdate();
 
             ResultSet rs = ps.getGeneratedKeys();
             if (rs.next()) {
-                m.setId(rs.getInt(1));
+                p.setId(rs.getInt(1));
             }
 
         } catch (SQLException e) {
@@ -57,8 +57,8 @@ public class MedicosDAO {
         }
     }
 
-    public void deletarMedico(int id) {
-        String sql = "DELETE FROM medicos WHERE id_medico = ?";
+    public void deletarPaciente(int id) {
+        String sql = "DELETE FROM pacientes WHERE id_paciente = ?";
 
         try (Connection con = DatabaseConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
