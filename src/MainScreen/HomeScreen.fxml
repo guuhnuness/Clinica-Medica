@@ -211,14 +211,7 @@
                <DatePicker fx:id="campo_data_medico" layoutX="115.0" layoutY="578.0" />
             </children>
          </Pane>
-
-         <!-- NOTAS -->
-         <Pane fx:id="consultas_page" prefHeight="827.0" prefWidth="1039.0" visible="false">
-            <children>
-               <Label layoutX="100.0" layoutY="100.0" text="Página de Notas (em construção)" />
-            </children>
-         </Pane>
-         <Pane fx:id="especialidades_page" layoutX="10.0" layoutY="10.0" prefHeight="827.0" prefWidth="1039.0">
+         <Pane fx:id="especialidades_page" layoutX="10.0" layoutY="10.0" prefHeight="827.0" prefWidth="1039.0" visible="false">
             <children>
                <TableView fx:id="tabelaEspecialidades" layoutX="41.0" layoutY="42.0" prefHeight="485.0" prefWidth="988.0">
                   <columns>
@@ -248,6 +241,72 @@
                <TextArea fx:id="campo_descricao_especialidade" layoutX="96.0" layoutY="696.0" prefHeight="96.0" prefWidth="500.0" />
             </children>
          </Pane>
+         <!-- CONSULTAS -->
+<Pane fx:id="consultas_page" prefHeight="827.0" prefWidth="1039.0" style="-fx-background-color: linear-gradient(to bottom right, #182848, #4b6cb7);" visible="false"
+      xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+
+        <!-- Painel principal translúcido -->
+        <Pane layoutX="60.0" layoutY="40.0" prefHeight="720.0" prefWidth="920.0" style="-fx-background-color: rgba(255,255,255,0.1); -fx-background-radius: 25;">
+            <children>
+
+                <!-- Título -->
+                <Label layoutX="40.0" layoutY="30.0" style="-fx-font-size: 26px; -fx-font-family: 'Century Gothic Bold';" text="Agendamento de Consultas" textFill="white" />
+
+                <!-- Linha separadora -->
+                <Pane layoutX="40.0" layoutY="70.0" prefHeight="2.0" prefWidth="840.0" style="-fx-background-color: rgba(255,255,255,0.3);" />
+
+                <!-- Painel de agendamento -->
+                <Pane layoutX="40.0" layoutY="100.0" prefHeight="220.0" prefWidth="840.0" style="-fx-background-color: rgba(255,255,255,0.15); -fx-background-radius: 20;">
+                    <children>
+                        <Label layoutX="40.0" layoutY="30.0" text="Paciente:" textFill="white" />
+                        <ComboBox fx:id="campo_paciente_consulta" layoutX="120.0" layoutY="25.0" prefWidth="250.0" />
+
+                        <Label layoutX="410.0" layoutY="30.0" text="Médico:" textFill="white" />
+                        <ComboBox fx:id="campo_medico_consulta" layoutX="470.0" layoutY="25.0" prefWidth="250.0" />
+
+                        <Label layoutX="40.0" layoutY="80.0" text="Data:" textFill="white" />
+                        <DatePicker fx:id="campo_data_consulta" layoutX="90.0" layoutY="75.0" prefWidth="150.0" />
+
+                        <Label layoutX="260.0" layoutY="80.0" text="Início:" textFill="white" />
+                        <TextField fx:id="campo_hora_inicio_consulta" layoutX="310.0" layoutY="75.0" prefWidth="100.0" promptText="HH:MM" />
+
+                        <Label layoutX="430.0" layoutY="80.0" text="Fim:" textFill="white" />
+                        <TextField fx:id="campo_hora_fim_consulta" layoutX="470.0" layoutY="75.0" prefWidth="100.0" promptText="HH:MM" />
+
+                        <Label layoutX="600.0" layoutY="80.0" text="Status:" textFill="white" />
+                        <ComboBox fx:id="campo_status_consulta" layoutX="660.0" layoutY="75.0" prefWidth="150.0" />
+
+                        <!-- Botões estilizados -->
+                        <HBox layoutX="40.0" layoutY="150.0" spacing="20">
+                            <Button fx:id="btnAdicionarConsulta" onMouseClicked="#adicionarConsulta" style="-fx-background-color: #00c896; -fx-text-fill: white; -fx-background-radius: 12; -fx-font-weight: bold;" text="Adicionar" prefWidth="120" prefHeight="35" />
+                            <Button fx:id="btnRemoverConsulta" onMouseClicked="#removerConsulta" style="-fx-background-color: #e63946; -fx-text-fill: white; -fx-background-radius: 12; -fx-font-weight: bold;" text="Remover" prefWidth="120" prefHeight="35" />
+                            <Button fx:id="btnLimparConsulta" onMouseClicked="#limparCamposConsulta" style="-fx-background-color: #457b9d; -fx-text-fill: white; -fx-background-radius: 12; -fx-font-weight: bold;" text="Limpar" prefWidth="120" prefHeight="35" />
+                        </HBox>
+                    </children>
+                </Pane>
+
+                <!-- Tabela de consultas -->
+                <TableView fx:id="tabelaConsultas" layoutX="40.0" layoutY="350.0" prefHeight="320.0" prefWidth="840.0" style="-fx-background-color: rgba(255,255,255,0.15); -fx-background-radius: 20;">
+                    <columns>
+                        <TableColumn fx:id="coluna_id_consulta" prefWidth="70.0" text="ID" />
+                        <TableColumn fx:id="coluna_paciente_consulta" prefWidth="170.0" text="Paciente" />
+                        <TableColumn fx:id="coluna_medico_consulta" prefWidth="170.0" text="Médico" />
+                        <TableColumn fx:id="coluna_data_consulta" prefWidth="130.0" text="Data" />
+                        <TableColumn fx:id="coluna_hora_inicio" prefWidth="120.0" text="Início" />
+                        <TableColumn fx:id="coluna_hora_fim" prefWidth="120.0" text="Fim" />
+                        <TableColumn fx:id="coluna_status_consulta" prefWidth="130.0" text="Status" />
+                    </columns>
+                </TableView>
+
+            </children>
+        </Pane>
+    </children>
+
+
+</Pane>
+
+         
       </StackPane>
    </children>
 </HBox>

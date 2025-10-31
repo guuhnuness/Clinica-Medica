@@ -20,9 +20,9 @@ public class PacientesDAO {
                     rs.getInt("id_paciente"),
                     rs.getString("nome"),
                     rs.getString("cpf"),
-                    rs.getString("data_nascimento"),
+                    rs.getDate("data_nascimento").toString(),
                     rs.getString("telefone"),
-                    rs.getString("email"), 
+                    rs.getString("email"),
                     rs.getString("logradouro")
                 );
                 lista.add(p);
@@ -34,8 +34,34 @@ public class PacientesDAO {
         return lista;
     }
 
+    public Pacientes buscarPorId(int id) {
+        String sql = "SELECT * FROM pacientes WHERE id_paciente = ?";
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new Pacientes(
+                        rs.getInt("id_paciente"),
+                        rs.getString("nome"),
+                        rs.getString("cpf"),
+                        rs.getDate("data_nascimento").toString(),
+                        rs.getString("telefone"),
+                        rs.getString("email"),
+                        rs.getString("logradouro")
+                    );
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public void inserirPaciente(Pacientes p) {
-        String sql = "INSERT INTO pacientes (nome, cpf, data_nascimento, telefone, email) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO pacientes (nome, cpf, data_nascimento, telefone, email, logradouro) VALUES (?, ?, ?, ?, ?, ?)";
 
         try (Connection con = DatabaseConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -45,6 +71,7 @@ public class PacientesDAO {
             ps.setString(3, p.getDataNascimento());
             ps.setString(4, p.getTelefone());
             ps.setString(5, p.getEmail());
+            ps.setString(6, p.getLogradouro());
             ps.executeUpdate();
 
             ResultSet rs = ps.getGeneratedKeys();
@@ -59,7 +86,6 @@ public class PacientesDAO {
 
     public void deletarPaciente(int id) {
         String sql = "DELETE FROM pacientes WHERE id_paciente = ?";
-
         try (Connection con = DatabaseConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 

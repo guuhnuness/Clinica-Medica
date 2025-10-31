@@ -33,6 +33,29 @@ public class MedicosDAO {
         }
         return lista;
     }
+    public Medicos buscarPorId(int id) {
+    String sql = "SELECT * FROM medicos WHERE id_medico = ?";
+    try (Connection con = DatabaseConnection.getConnection();
+         PreparedStatement ps = con.prepareStatement(sql)) {
+        ps.setInt(1, id);
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return new Medicos(
+                    rs.getInt("id_medico"),
+                    rs.getString("nome"),
+                    rs.getString("crm"),
+                    rs.getInt("id_especialidade"),
+                    rs.getDate("data_nascimento"),
+                    rs.getString("telefone")
+                );
+            }
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return null;
+}
+
 
     public void inserirMedico(Medicos m) {
         String sql = "INSERT INTO medicos (nome, crm, id_especialidade, data_nascimento, telefone) VALUES (?, ?, ?, ?, ?)";
