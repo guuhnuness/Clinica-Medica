@@ -23,14 +23,14 @@ public class MainController implements Initializable {
     @FXML private TableColumn<Pacientes, Integer> coluna_id_paciente;
     @FXML private TableColumn<Pacientes, String> coluna_nome_paciente;
     @FXML private TableColumn<Pacientes, String> coluna_cpf_paciente;
-    @FXML private TableColumn<Pacientes, String> coluna_data_paciente;
+    @FXML private TableColumn<Pacientes, Date> coluna_data_paciente;
     @FXML private TableColumn<Pacientes, String> coluna_telefone_paciente;
     @FXML private TableColumn<Pacientes, String> coluna_email_paciente;
     @FXML private TableColumn<Pacientes, String> coluna_logradouro_paciente;
 
     @FXML private TextField campo_nome_paciente;
     @FXML private TextField campo_cpf_paciente;
-    @FXML private TextField campo_data_paciente;
+    @FXML private DatePicker campo_data_paciente;
     @FXML private TextField campo_telefone_paciente;
     @FXML private TextField campo_email_paciente;
     @FXML private TextField campo_logradouro_paciente;
@@ -171,30 +171,149 @@ public class MainController implements Initializable {
             if (campo_status_consulta != null) campo_status_consulta.setItems(FXCollections.observableArrayList("Agendada", "Concluída", "Cancelada"));
         }
     }
-            @FXML private void adicionarConsulta(MouseEvent event) {
-                Pacientes paciente = campo_paciente_consulta.getValue();
-                Medicos medico = campo_medico_consulta.getValue();
-                Date data = campo_data_consulta.getValue() != null ? Date.valueOf(campo_data_consulta.getValue()) : null;
-                String horaInicioStr = campo_hora_inicio_consulta.getText().trim(); String horaFimStr = campo_hora_fim_consulta.getText().trim();
-                String status = campo_status_consulta.getValue();
-                if (paciente == null || medico == null || data == null || horaInicioStr.isEmpty() || horaFimStr.isEmpty() || status == null) {
-                    mostrarAlerta("Erro", "Todos os campos são obrigatórios.", Alert.AlertType.ERROR);
-                    return; }
-                try {
-                    if (!horaInicioStr.matches("\\d{2}:\\d{2}") || !horaFimStr.matches("\\d{2}:\\d{2}")) {
-                        mostrarAlerta("Erro", "Formato de hora inválido. Use HH:MM.", Alert.AlertType.ERROR);
-                        return;
-                    } 
-                    Time horaInicio = Time.valueOf(horaInicioStr + ":00"); Time horaFim = Time.valueOf(horaFimStr + ":00");
-                    if (horaFim.before(horaInicio) || horaFim.equals(horaInicio)) { 
-                        mostrarAlerta("Erro", "Hora de término deve ser maior que hora de início.", Alert.AlertType.ERROR); 
-                        return;
-                    }
-                    Consulta nova = new Consulta(paciente.getId(), medico.getId(), data, horaInicio, horaFim, status);
-                    consultaDAO.inserirConsulta(nova); listaConsultas.add(nova); 
-                    limparCamposConsulta();
-                    mostrarAlerta("Sucesso", "Consulta adicionada com sucesso!", Alert.AlertType.INFORMATION);
-                } catch (IllegalArgumentException e) { mostrarAlerta("Erro", "Formato de hora inválido. Use HH:MM.", Alert.AlertType.ERROR); } }
+
+    // ================= MÉTODOS DE VERIFICAÇÃO =================
+    private boolean existeCPF(String cpf) {
+        return listaPacientes.stream().anyMatch(p -> p.getCpf().equals(cpf));
+    }
+
+    private boolean existeCRM(String crm) {
+        return listaMedicos.stream().anyMatch(m -> m.getCrm().equals(crm));
+    }
+
+    private boolean existeNomeEspecialidade(String nome) {
+        return listaEspecialidades.stream().anyMatch(e -> e.getNome().equalsIgnoreCase(nome));
+    }
+
+    private boolean consultaConflito(Medicos medico, Date data, Time horaInicio, Time horaFim) {
+        return listaConsultas.stream().anyMatch(c ->
+                c.getIdMedico() == medico.getId() &&
+                        c.getDataConsulta().equals(data) &&
+                        !(horaFim.before(c.getHoraInicio()) || horaInicio.after(c.getHoraFim()))
+        );
+    }
+
+    // ================= ADICIONAR =================
+    @FXML
+    private void adicionarPaciente(MouseEvent event) {
+        String nome = campo_nome_paciente.getText().trim();
+        String cpf = campo_cpf_paciente.getText().trim();
+        Date data = campo_data_paciente.getValue() != null ? Date.valueOf(campo_data_paciente.getValue()) : null;
+        String telefone = campo_telefone_paciente.getText().trim();
+        String email = campo_email_paciente.getText().trim();
+        String logradouro = campo_logradouro_paciente.getText().trim();
+
+        if (nome.isEmpty() || cpf.isEmpty() || data == null || telefone.isEmpty() || email.isEmpty() || logradouro.isEmpty()) {
+            mostrarAlerta("Erro", "Todos os campos são obrigatórios.", Alert.AlertType.ERROR);
+            return;
+        }
+
+        if (existeCPF(cpf)) {
+            mostrarAlerta("Erro", "Já existe um paciente com esse CPF.", Alert.AlertType.ERROR);
+            return;
+        }
+
+        Pacientes novo = new Pacientes(nome, cpf, data, telefone, email, logradouro);
+        pacienteDAO.inserirPaciente(novo);
+        listaPacientes.add(novo);
+        limparCamposPaciente();
+        mostrarAlerta("Sucesso", "Paciente adicionado com sucesso!", Alert.AlertType.INFORMATION);
+    }
+
+    @FXML
+    private void adicionarMedico(MouseEvent event) {
+        String nome = campo_nome_medico.getText().trim();
+        String crm = campo_crm_medico.getText().trim();
+        Especialidade especialidade = campo_especialidade_medico.getValue();
+        Date data = campo_data_medico.getValue() != null ? Date.valueOf(campo_data_medico.getValue()) : null;
+        String telefone = campo_telefone_medico.getText().trim();
+
+        if (nome.isEmpty() || crm.isEmpty() || especialidade == null || data == null || telefone.isEmpty()) {
+            mostrarAlerta("Erro", "Todos os campos são obrigatórios.", Alert.AlertType.ERROR);
+            return;
+        }
+
+        if (existeCRM(crm)) {
+            mostrarAlerta("Erro", "Já existe um médico com esse CRM.", Alert.AlertType.ERROR);
+            return;
+        }
+
+        Medicos medico = new Medicos(nome, crm, especialidade.getId(), data, telefone);
+        medicoDAO.inserirMedico(medico);
+        listaMedicos.add(medico);
+        limparCamposMedico();
+        mostrarAlerta("Sucesso", "Médico adicionado com sucesso!", Alert.AlertType.INFORMATION);
+    }
+
+    @FXML
+    private void adicionarEspecialidade(MouseEvent event) {
+        String nome = campo_nome_especialidade.getText().trim();
+        String descricao = campo_descricao_especialidade.getText().trim();
+
+        if (nome.isEmpty()) {
+            mostrarAlerta("Erro", "O campo nome é obrigatório.", Alert.AlertType.ERROR);
+            return;
+        }
+
+        if (existeNomeEspecialidade(nome)) {
+            mostrarAlerta("Erro", "Já existe uma especialidade com esse nome.", Alert.AlertType.ERROR);
+            return;
+        }
+
+        Especialidade nova = new Especialidade(nome, descricao);
+        especialidadeDAO.adicionarEspecialidade(nova);
+        listaEspecialidades.setAll(especialidadeDAO.listarEspecialidades());
+        limparCamposEspecialidade();
+        mostrarAlerta("Sucesso", "Especialidade adicionada com sucesso!", Alert.AlertType.INFORMATION);
+    }
+
+    @FXML
+    private void adicionarConsulta(MouseEvent event) {
+        Pacientes paciente = campo_paciente_consulta.getValue();
+        Medicos medico = campo_medico_consulta.getValue();
+        Date data = campo_data_consulta.getValue() != null ? Date.valueOf(campo_data_consulta.getValue()) : null;
+        String horaInicioStr = campo_hora_inicio_consulta.getText().trim();
+        String horaFimStr = campo_hora_fim_consulta.getText().trim();
+        String status = campo_status_consulta.getValue();
+
+        if (paciente == null || medico == null || data == null || horaInicioStr.isEmpty() || horaFimStr.isEmpty() || status == null) {
+            mostrarAlerta("Erro", "Todos os campos são obrigatórios.", Alert.AlertType.ERROR);
+            return;
+        }
+
+        try {
+            if (!horaInicioStr.matches("\\d{2}:\\d{2}") || !horaFimStr.matches("\\d{2}:\\d{2}")) {
+                mostrarAlerta("Erro", "Formato de hora inválido. Use HH:MM.", Alert.AlertType.ERROR);
+                return;
+            }
+
+            Time horaInicio = Time.valueOf(horaInicioStr + ":00");
+            Time horaFim = Time.valueOf(horaFimStr + ":00");
+
+            if (horaFim.before(horaInicio) || horaFim.equals(horaInicio)) {
+                mostrarAlerta("Erro", "Hora de término deve ser maior que hora de início.", Alert.AlertType.ERROR);
+                return;
+            }
+
+            if (consultaConflito(medico, data, horaInicio, horaFim)) {
+                mostrarAlerta("Erro", "O médico já possui uma consulta nesse horário.", Alert.AlertType.ERROR);
+                return;
+            }
+
+            Consulta nova = new Consulta(paciente.getId(), medico.getId(), data, horaInicio, horaFim, status);
+            consultaDAO.inserirConsulta(nova);
+            listaConsultas.add(nova);
+            limparCamposConsulta();
+            mostrarAlerta("Sucesso", "Consulta adicionada com sucesso!", Alert.AlertType.INFORMATION);
+
+        } catch (IllegalArgumentException e) {
+            mostrarAlerta("Erro", "Formato de hora inválido. Use HH:MM.", Alert.AlertType.ERROR);
+        }
+    }
+
+    
+
+
 
     @FXML
     private void removerConsulta(MouseEvent event) {
@@ -219,25 +338,7 @@ public class MainController implements Initializable {
     }
 
     // ================= PACIENTES =================
-    @FXML
-    private void adicionarPaciente(MouseEvent event) {
-        String nome = campo_nome_paciente.getText().trim();
-        String cpf = campo_cpf_paciente.getText().trim();
-        String data = campo_data_paciente.getText().trim();
-        String telefone = campo_telefone_paciente.getText().trim();
-        String email = campo_email_paciente.getText().trim();
-        String logradouro = campo_logradouro_paciente.getText().trim();
-
-        if (nome.isEmpty() || cpf.isEmpty() || data.isEmpty() || telefone.isEmpty() || email.isEmpty() || logradouro.isEmpty()) {
-            mostrarAlerta("Erro", "Todos os campos são obrigatórios.", Alert.AlertType.ERROR);
-            return;
-        }
-
-        Pacientes novo = new Pacientes(nome, cpf, data, telefone, email, logradouro);
-        pacienteDAO.inserirPaciente(novo);
-        listaPacientes.add(novo);
-        limparCamposPaciente();
-    }
+    
 
     @FXML
     private void removerPaciente(MouseEvent event) {
@@ -254,31 +355,14 @@ public class MainController implements Initializable {
     private void limparCamposPaciente() {
         campo_nome_paciente.clear();
         campo_cpf_paciente.clear();
-        campo_data_paciente.clear();
+        campo_data_paciente.setValue(null);
         campo_telefone_paciente.clear();
         campo_email_paciente.clear();
         campo_logradouro_paciente.clear();
     }
 
     // ================= MÉDICOS =================
-    @FXML
-    private void adicionarMedico(MouseEvent event) {
-        String nome = campo_nome_medico.getText().trim();
-        String crm = campo_crm_medico.getText().trim();
-        Especialidade especialidade = campo_especialidade_medico.getValue();
-        Date data = campo_data_medico.getValue() != null ? Date.valueOf(campo_data_medico.getValue()) : null;
-        String telefone = campo_telefone_medico.getText().trim();
-
-        if (nome.isEmpty() || crm.isEmpty() || especialidade == null || data == null || telefone.isEmpty()) {
-            mostrarAlerta("Erro", "Todos os campos são obrigatórios.", Alert.AlertType.ERROR);
-            return;
-        }
-
-        Medicos medico = new Medicos(nome, crm, especialidade.getId(), data, telefone);
-        medicoDAO.inserirMedico(medico);
-        listaMedicos.add(medico);
-        limparCamposMedico();
-    }
+    
 
     @FXML
     private void removerMedico(MouseEvent event) {
@@ -301,22 +385,7 @@ public class MainController implements Initializable {
     }
 
     // ================= ESPECIALIDADES =================
-    @FXML
-    private void adicionarEspecialidade(MouseEvent event) {
-        String nome = campo_nome_especialidade.getText().trim();
-        String descricao = campo_descricao_especialidade.getText().trim();
-
-        if (nome.isEmpty()) {
-            mostrarAlerta("Erro", "O campo nome é obrigatório.", Alert.AlertType.ERROR);
-            return;
-        }
-
-        Especialidade nova = new Especialidade(nome, descricao);
-        especialidadeDAO.adicionarEspecialidade(nova);
-        listaEspecialidades.setAll(especialidadeDAO.listarEspecialidades());
-        limparCamposEspecialidade();
-        mostrarAlerta("Sucesso", "Especialidade adicionada com sucesso!", Alert.AlertType.INFORMATION);
-    }
+    
 
     @FXML
     private void removerEspecialidade(MouseEvent event) {
@@ -338,59 +407,66 @@ public class MainController implements Initializable {
 
     // ================= PÁGINAS =================
     @FXML private void BtnPacientes(MouseEvent event) {
+        resetarBotoes();
+        btn_pacientes.setStyle("-fx-background-color: #141313;");
         home_page.setVisible(false);
         pacientes_page.setVisible(true);
         medicos_page.setVisible(false);
         consultas_page.setVisible(false);
         especialidades_page.setVisible(false);
         top_bar.setVisible(true);
-        resetarBotoes();
-        btn_pacientes.setStyle("-fx-background-color: #141313;");
+        
     }
 
     @FXML private void BtnHome(MouseEvent event) {
+        resetarBotoes();
+        btn_home.setStyle("-fx-background-color: #141313;");
         home_page.setVisible(true);
         pacientes_page.setVisible(false);
         medicos_page.setVisible(false);
         consultas_page.setVisible(false);
         especialidades_page.setVisible(false);
         top_bar.setVisible(true);
-        resetarBotoes();
-        btn_home.setStyle("-fx-background-color: #141313;");
+        
     }
 
     @FXML private void BtnMedicos(MouseEvent event) {
+         resetarBotoes();
+        btn_medicos.setStyle("-fx-background-color: #141313;");
         home_page.setVisible(false);
         pacientes_page.setVisible(false);
         medicos_page.setVisible(true);
         consultas_page.setVisible(false);
         especialidades_page.setVisible(false);
-        top_bar.setVisible(false);
-        resetarBotoes();
-        btn_medicos.setStyle("-fx-background-color: #141313;");
+        top_bar.setVisible(true);
+       
     }
 
     @FXML private void BtnConsultas(MouseEvent event) {
+        resetarBotoes();
+        btn_consultas.setStyle("-fx-background-color: #141313;");
         home_page.setVisible(false);
         pacientes_page.setVisible(false);
         medicos_page.setVisible(false);
         consultas_page.setVisible(true);
         especialidades_page.setVisible(false);
-        top_bar.setVisible(false);
-        resetarBotoes();
-        btn_consultas.setStyle("-fx-background-color: #141313;");
+        top_bar.setVisible(true);
+        
     }
 
-    @FXML private void BtnEspecialidades(MouseEvent event) {
-        home_page.setVisible(false);
-        pacientes_page.setVisible(false);
-        medicos_page.setVisible(false);
-        consultas_page.setVisible(false);
-        especialidades_page.setVisible(true);
-        top_bar.setVisible(false);
-        btn_especialidades.setStyle("-fx-background-color: #141313;");
-        resetarBotoes();
-    }
+  @FXML private void BtnEspecialidades(MouseEvent event) {
+    resetarBotoes();
+    btn_especialidades.setStyle("-fx-background-color: #141313;");
+    
+    home_page.setVisible(false);
+    pacientes_page.setVisible(false);
+    medicos_page.setVisible(false);
+    consultas_page.setVisible(false);
+    especialidades_page.setVisible(true);
+    
+    top_bar.setVisible(true); // mantém sempre visível se os botões estiverem lá
+}
+
     
 
     private void resetarBotoes() {

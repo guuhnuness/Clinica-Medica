@@ -20,7 +20,7 @@ public class PacientesDAO {
                     rs.getInt("id_paciente"),
                     rs.getString("nome"),
                     rs.getString("cpf"),
-                    rs.getDate("data_nascimento").toString(),
+                    rs.getDate("data_nascimento"),
                     rs.getString("telefone"),
                     rs.getString("email"),
                     rs.getString("logradouro")
@@ -46,7 +46,7 @@ public class PacientesDAO {
                         rs.getInt("id_paciente"),
                         rs.getString("nome"),
                         rs.getString("cpf"),
-                        rs.getDate("data_nascimento").toString(),
+                        rs.getDate("data_nascimento"),
                         rs.getString("telefone"),
                         rs.getString("email"),
                         rs.getString("logradouro")
@@ -68,7 +68,7 @@ public class PacientesDAO {
 
             ps.setString(1, p.getNome());
             ps.setString(2, p.getCpf());
-            ps.setString(3, p.getDataNascimento());
+           ps.setDate(4, p.getDataNascimento());
             ps.setString(4, p.getTelefone());
             ps.setString(5, p.getEmail());
             ps.setString(6, p.getLogradouro());
