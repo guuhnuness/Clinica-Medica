@@ -99,7 +99,7 @@
       <StackPane fx:id="content_area" prefHeight="827.0" prefWidth="1039.0">
 
          <!-- HOME -->
-         <Pane fx:id="home_page" prefHeight="827.0" prefWidth="1039.0" style="-fx-background-color: linear-gradient(to bottom right, #182848, #4b6cb7);" visible="false">
+         <Pane fx:id="home_page" prefHeight="827.0" prefWidth="1039.0" style="-fx-background-color: linear-gradient(to bottom right, #182848, #4b6cb7);">
             <children>
                <Pane layoutX="60.0" layoutY="40.0" prefHeight="720.0" prefWidth="920.0" style="-fx-background-color: rgba(255,255,255,0.1); -fx-background-radius: 25;">
                    <children>
@@ -115,7 +115,7 @@
          </Pane>
 
          <!-- PACIENTES -->
-         <Pane fx:id="pacientes_page" prefHeight="827.0" prefWidth="1039.0" style="-fx-background-color: linear-gradient(to bottom right, #182848, #4b6cb7);">
+         <Pane fx:id="pacientes_page" prefHeight="827.0" prefWidth="1039.0" style="-fx-background-color: linear-gradient(to bottom right, #182848, #4b6cb7);" visible="false">
             <children>
                 <Pane layoutX="40.0" layoutY="40.0" prefHeight="720.0" prefWidth="920.0" style="-fx-background-color: rgba(255,255,255,0.1); -fx-background-radius: 25;">
                     <children>
@@ -220,15 +220,14 @@
                         <!-- Campos de entrada -->
                         <Label layoutX="40.0" layoutY="480.0" text="Nome:" textFill="white" />
                         <TextField fx:id="campo_nome_especialidade" layoutX="100.0" layoutY="478.0" prefWidth="200.0" />
-                        <Label layoutX="320.0" layoutY="480.0" text="Descrição:" textFill="white" />
-                        <javafx.scene.control.TextArea fx:id="campo_descricao_especialidade" layoutX="400.0" layoutY="478.0" prefWidth="400.0" />
+                        <Label layoutX="406.0" layoutY="480.0" text="Descrição:" textFill="white" />
+                        <javafx.scene.control.TextArea fx:id="campo_descricao_especialidade" layoutX="480.0" layoutY="480.0" prefWidth="400.0" />
                         
                         <!-- Botões -->
-                        <HBox layoutX="40.0" layoutY="520.0" spacing="20">
-                            <Button fx:id="btnAdicionarEspecialidade" onMouseClicked="#adicionarEspecialidade" prefHeight="35" prefWidth="120" style="-fx-background-color: #00c896; -fx-text-fill: white; -fx-background-radius: 12; -fx-font-weight: bold;" text="Adicionar" />
-                            <Button fx:id="btnRemoverEspecialidade" onMouseClicked="#removerEspecialidade" prefHeight="35" prefWidth="120" style="-fx-background-color: #e63946; -fx-text-fill: white; -fx-background-radius: 12; -fx-font-weight: bold;" text="Remover" />
-                            <Button fx:id="btnLimparEspecialidade" onMouseClicked="#limparCamposEspecialidade" prefHeight="35" prefWidth="120" style="-fx-background-color: #457b9d; -fx-text-fill: white; -fx-background-radius: 12; -fx-font-weight: bold;" text="Limpar" />
-                        </HBox>
+                        <HBox layoutX="40.0" layoutY="520.0" spacing="20" />
+                         <Button fx:id="btnAdicionarEspecialidade" layoutX="21.0" layoutY="559.0" onMouseClicked="#adicionarEspecialidade" prefHeight="35" prefWidth="120" style="-fx-background-color: #00c896; -fx-text-fill: white; -fx-background-radius: 12; -fx-font-weight: bold;" text="Adicionar" />
+                         <Button fx:id="btnRemoverEspecialidade" layoutX="161.0" layoutY="559.0" onMouseClicked="#removerEspecialidade" prefHeight="35" prefWidth="120" style="-fx-background-color: #e63946; -fx-text-fill: white; -fx-background-radius: 12; -fx-font-weight: bold;" text="Remover" />
+                         <Button fx:id="btnLimparEspecialidade" layoutX="301.0" layoutY="559.0" onMouseClicked="#limparCamposEspecialidade" prefHeight="35" prefWidth="120" style="-fx-background-color: #457b9d; -fx-text-fill: white; -fx-background-radius: 12; -fx-font-weight: bold;" text="Limpar" />
                     </children>
                 </Pane>
             </children>
