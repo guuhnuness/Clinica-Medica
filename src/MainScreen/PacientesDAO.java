@@ -60,29 +60,41 @@ public class PacientesDAO {
         return null;
     }
 
-    public void inserirPaciente(Pacientes p) {
-        String sql = "INSERT INTO pacientes (nome, cpf, data_nascimento, telefone, email, logradouro) VALUES (?, ?, ?, ?, ?, ?)";
+    public int inserirPaciente(Pacientes p) {
+    String sql = "INSERT INTO pacientes (nome, cpf, data_nascimento, telefone, email, logradouro) VALUES (?, ?, ?, ?, ?, ?)";
+    
+    try (Connection con = DatabaseConnection.getConnection();
+         PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
-        try (Connection con = DatabaseConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        ps.setString(1, p.getNome());
+        ps.setString(2, p.getCpf());
 
-            ps.setString(1, p.getNome());
-            ps.setString(2, p.getCpf());
-           ps.setDate(4, p.getDataNascimento());
-            ps.setString(4, p.getTelefone());
-            ps.setString(5, p.getEmail());
-            ps.setString(6, p.getLogradouro());
-            ps.executeUpdate();
-
-            ResultSet rs = ps.getGeneratedKeys();
-            if (rs.next()) {
-                p.setId(rs.getInt(1));
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
+        // Converte a data (caso esteja como String)
+        if (p.getDataNascimento() != null) {
+            ps.setDate(3, p.getDataNascimento());
+        }  else {
+            ps.setNull(3, Types.DATE);
         }
+
+        ps.setString(4, p.getTelefone());
+        ps.setString(5, p.getEmail());
+        ps.setString(6, p.getLogradouro());
+        ps.executeUpdate();
+
+        ResultSet rs = ps.getGeneratedKeys();
+        if (rs.next()) {
+            int idGerado = rs.getInt(1);
+            p.setId(idGerado);
+            return idGerado;
+        }
+
+    } catch (SQLException e) {
+        e.printStackTrace();
     }
+
+    return -1; // Retorna -1 se falhar
+}
+
 
     public void deletarPaciente(int id) {
         String sql = "DELETE FROM pacientes WHERE id_paciente = ?";

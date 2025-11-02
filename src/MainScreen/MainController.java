@@ -203,21 +203,30 @@ public class MainController implements Initializable {
         String email = campo_email_paciente.getText().trim();
         String logradouro = campo_logradouro_paciente.getText().trim();
 
-        if (nome.isEmpty() || cpf.isEmpty() || data == null || telefone.isEmpty() || email.isEmpty() || logradouro.isEmpty()) {
-            mostrarAlerta("Erro", "Todos os campos são obrigatórios.", Alert.AlertType.ERROR);
-            return;
-        }
+         if (nome.isEmpty() || cpf.isEmpty() || data == null || telefone.isEmpty() || email.isEmpty() || logradouro.isEmpty()) {
+        mostrarAlerta("Erro", "Todos os campos são obrigatórios.", Alert.AlertType.ERROR);
+        return;
+    }
 
-        if (existeCPF(cpf)) {
+    // Verifica duplicidade de CPF
+    for (Pacientes p : listaPacientes) {
+        if (p.getCpf().equals(cpf)) {
             mostrarAlerta("Erro", "Já existe um paciente com esse CPF.", Alert.AlertType.ERROR);
             return;
         }
+    }
 
-        Pacientes novo = new Pacientes(nome, cpf, data, telefone, email, logradouro);
-        pacienteDAO.inserirPaciente(novo);
+    Pacientes novo = new Pacientes(nome, cpf, data, telefone, email, logradouro);
+
+    int idGerado = pacienteDAO.inserirPaciente(novo);
+    if (idGerado > 0) {
+        novo.setId(idGerado); // associa o id retornado
         listaPacientes.add(novo);
         limparCamposPaciente();
         mostrarAlerta("Sucesso", "Paciente adicionado com sucesso!", Alert.AlertType.INFORMATION);
+    } else {
+        mostrarAlerta("Erro", "Falha ao inserir paciente no banco.", Alert.AlertType.ERROR);
+    }
     }
 
     @FXML
